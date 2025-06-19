@@ -1,33 +1,98 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Multiple Promises Resolution Tracker</title>
+  <style>
+    table {
+      width: 50%;
+      border-collapse: collapse;
+      margin: 20px auto;
+      font-family: Arial, sans-serif;
+    }
+    th, td {
+      border: 1px solid #444;
+      padding: 8px 12px;
+      text-align: center;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    #loading-row {
+      text-align: center;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
 
-<html>
-  <head>
-    <link rel="stylesheet" href="styles.css" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
-      crossorigin="anonymous"
-    />
-  </head>
+  <table>
+    <thead>
+      <tr>
+        <th>Promise</th>
+        <th>Time Taken (Seconds)</th>
+      </tr>
+    </thead>
+    <tbody id="output">
+      <tr id="loading-row">
+        <td colspan="2">Loading...</td>
+      </tr>
+    </tbody>
+  </table>
 
-  <body>
-    <!-- the entire body must be written by student -->
-    <table class="table table-striped table-hover table-bordered">
-      <thead>
-        <tr>
-          <th>Promise Name</th>
-          <th>Time taken (s)</th>
-        </tr>
-      </thead>
-      <tbody id="output"></tbody>
-    </table>
+  <script>
+    // Utility to create a promise that resolves in random 1-3 seconds
+    function createTimedPromise(index) {
+      const delay = Math.random() * 2 + 1; // Random delay between 1 and 3 seconds
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(delay.toFixed(3)); // Resolve with the delay in fixed format
+        }, delay * 1000);
+      });
+    }
 
-    <script type="text/javascript" src="./script.js"></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
-      crossorigin="anonymous"
-    ></script>
-  </body>
+    // Record start time
+    const startTime = performance.now();
+
+    // Create 3 promises
+    const promises = [
+      createTimedPromise(1),
+      createTimedPromise(2),
+      createTimedPromise(3)
+    ];
+
+    // When all promises resolve
+    Promise.all(promises).then(results => {
+      // Record end time
+      const endTime = performance.now();
+      const totalTime = ((endTime - startTime) / 1000).toFixed(3);
+
+      const tbody = document.getElementById('output');
+      tbody.innerHTML = ''; // Clear loading row
+
+      // Add each promise result to the table
+      results.forEach((time, index) => {
+        const row = document.createElement('tr');
+        const promiseCell = document.createElement('td');
+        const timeCell = document.createElement('td');
+        promiseCell.textContent = `Promise ${index + 1}`;
+        timeCell.textContent = time;
+        row.appendChild(promiseCell);
+        row.appendChild(timeCell);
+        tbody.appendChild(row);
+      });
+
+      // Add total row
+      const totalRow = document.createElement('tr');
+      const totalLabelCell = document.createElement('td');
+      const totalTimeCell = document.createElement('td');
+      totalLabelCell.textContent = 'Total';
+      totalTimeCell.textContent = totalTime;
+      totalRow.appendChild(totalLabelCell);
+      totalRow.appendChild(totalTimeCell);
+      tbody.appendChild(totalRow);
+    });
+  </script>
+
+</body>
 </html>
