@@ -1,98 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Multiple Promises Resolution Tracker</title>
-  <style>
-    table {
-      width: 50%;
-      border-collapse: collapse;
-      margin: 20px auto;
-      font-family: Arial, sans-serif;
-    }
-    th, td {
-      border: 1px solid #444;
-      padding: 8px 12px;
-      text-align: center;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-    #loading-row {
-      text-align: center;
-      font-style: italic;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiple Promises Resolution Tracker</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ecf0f1;
+            transition: background-color 0.3s ease;
+        }
+
+        tr:hover td {
+            background-color: #f8f9fa;
+        }
+
+        .loading {
+            text-align: center;
+            color: #3498db;
+            font-style: italic;
+            animation: pulse 1.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { opacity: 0.6; }
+            to { opacity: 1; }
+        }
+
+        .promise-row {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .total-row {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            font-weight: bold;
+        }
+
+        .total-row:hover {
+            background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+        }
+
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        button {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .info {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #3498db;
+        }
+
+        .time-display {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #2980b9;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>🚀 Promise Resolution Tracker</h1>
+        <p class="subtitle">Watch three promises resolve with random delays between 1-3 seconds</p>
+        
+        <div class="info">
+            <strong>How it works:</strong> Three promises are created with random delays. Promise.all() waits for all to complete, 
+            then displays individual resolution times and the total time (which equals the slowest promise).
+        </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Promise</th>
-        <th>Time Taken (Seconds)</th>
-      </tr>
-    </thead>
-    <tbody id="output">
-      <tr id="loading-row">
-        <td colspan="2">Loading...</td>
-      </tr>
-    </tbody>
-  </table>
+        <div class="controls">
+            <button onclick="startPromiseTracking()">Start Promise Tracking</button>
+        </div>
 
-  <script>
-    // Utility to create a promise that resolves in random 1-3 seconds
-    function createTimedPromise(index) {
-      const delay = Math.random() * 2 + 1; // Random delay between 1 and 3 seconds
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(delay.toFixed(3)); // Resolve with the delay in fixed format
-        }, delay * 1000);
-      });
-    }
+        <table>
+            <thead>
+                <tr>
+                    <th>Promise</th>
+                    <th>Time Taken (Seconds)</th>
+                </tr>
+            </thead>
+            <tbody id="output">
+                <tr>
+                    <td colspan="2" class="loading">Click "Start Promise Tracking" to begin...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-    // Record start time
-    const startTime = performance.now();
+    <script>
+        function createPromise(promiseNumber) {
+            // Generate random delay between 1 and 3 seconds
+            const delay = Math.random() * 2 + 1; // 1 to 3 seconds
+            const startTime = performance.now();
+            
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const endTime = performance.now();
+                    const actualDelay = (endTime - startTime) / 1000; // Convert to seconds
+                    resolve({
+                        promiseNumber,
+                        delay: actualDelay
+                    });
+                }, delay * 1000);
+            });
+        }
 
-    // Create 3 promises
-    const promises = [
-      createTimedPromise(1),
-      createTimedPromise(2),
-      createTimedPromise(3)
-    ];
+        async function startPromiseTracking() {
+            const tbody = document.getElementById('output');
+            
+            // Show loading state
+            tbody.innerHTML = '<tr><td colspan="2" class="loading">Loading... Promises are resolving...</td></tr>';
+            
+            // Record start time for total calculation
+            const totalStartTime = performance.now();
+            
+            // Create three promises
+            const promise1 = createPromise(1);
+            const promise2 = createPromise(2);
+            const promise3 = createPromise(3);
+            
+            try {
+                // Wait for all promises to resolve
+                const results = await Promise.all([promise1, promise2, promise3]);
+                
+                // Calculate total time
+                const totalEndTime = performance.now();
+                const totalTime = (totalEndTime - totalStartTime) / 1000;
+                
+                // Clear loading state
+                tbody.innerHTML = '';
+                
+                // Add results to table with animation delay
+                results.forEach((result, index) => {
+                    setTimeout(() => {
+                        const row = document.createElement('tr');
+                        row.className = 'promise-row';
+                        row.innerHTML = `
+                            <td>Promise ${result.promiseNumber}</td>
+                            <td class="time-display">${result.delay.toFixed(3)}</td>
+                        `;
+                        tbody.appendChild(row);
+                    }, index * 200);
+                });
+                
+                // Add total row with delay
+                setTimeout(() => {
+                    const totalRow = document.createElement('tr');
+                    totalRow.className = 'total-row promise-row';
+                    totalRow.innerHTML = `
+                        <td><strong>Total</strong></td>
+                        <td class="time-display">${totalTime.toFixed(3)}</td>
+                    `;
+                    tbody.appendChild(totalRow);
+                }, results.length * 200 + 200);
+                
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="2" style="color: red;">Error occurred while resolving promises</td></tr>';
+                console.error('Promise resolution error:', error);
+            }
+        }
 
-    // When all promises resolve
-    Promise.all(promises).then(results => {
-      // Record end time
-      const endTime = performance.now();
-      const totalTime = ((endTime - startTime) / 1000).toFixed(3);
-
-      const tbody = document.getElementById('output');
-      tbody.innerHTML = ''; // Clear loading row
-
-      // Add each promise result to the table
-      results.forEach((time, index) => {
-        const row = document.createElement('tr');
-        const promiseCell = document.createElement('td');
-        const timeCell = document.createElement('td');
-        promiseCell.textContent = `Promise ${index + 1}`;
-        timeCell.textContent = time;
-        row.appendChild(promiseCell);
-        row.appendChild(timeCell);
-        tbody.appendChild(row);
-      });
-
-      // Add total row
-      const totalRow = document.createElement('tr');
-      const totalLabelCell = document.createElement('td');
-      const totalTimeCell = document.createElement('td');
-      totalLabelCell.textContent = 'Total';
-      totalTimeCell.textContent = totalTime;
-      totalRow.appendChild(totalLabelCell);
-      totalRow.appendChild(totalTimeCell);
-      tbody.appendChild(totalRow);
-    });
-  </script>
-
+        // Auto-start on page load for demonstration
+        window.addEventListener('load', () => {
+            setTimeout(startPromiseTracking, 1000);
+        });
+    </script>
 </body>
 </html>
