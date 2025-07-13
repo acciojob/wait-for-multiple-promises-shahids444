@@ -18,7 +18,7 @@
     th {
       background-color: #f2f2f2;
     }
-    #loading-row td {
+    #loading td {
       font-style: italic;
     }
   </style>
@@ -33,6 +33,7 @@
       </tr>
     </thead>
     <tbody id="output">
+      <!-- Must match the test -->
       <tr id="loading">
         <td colspan="2">Loading...</td>
       </tr>
@@ -40,6 +41,7 @@
   </table>
 
   <script>
+    // Create a promise that resolves with its delay time
     function createTimedPromise(index) {
       const delay = Math.random() * 2 + 1; // 1–3 seconds
       return new Promise(resolve => {
@@ -62,12 +64,12 @@
       const totalTime = ((endTime - startTime) / 1000).toFixed(3);
 
       const tbody = document.getElementById('output');
-      tbody.innerHTML = ''; // Clear loading row
+      tbody.innerHTML = ''; // Remove "Loading..." row
 
-      results.forEach((result, idx) => {
+      results.forEach((result, i) => {
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td>Promise ${idx + 1}</td>
+          <td>Promise ${i + 1}</td>
           <td>${result.delay}</td>
         `;
         tbody.appendChild(row);
