@@ -1,25 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Multiple Promises Resolution Tracker</title>
   <style>
     table {
-      width: 50%;
+      width: 60%;
       border-collapse: collapse;
-      margin: 20px auto;
+      margin: 40px auto;
       font-family: Arial, sans-serif;
     }
     th, td {
       border: 1px solid #444;
-      padding: 8px 12px;
+      padding: 10px 15px;
       text-align: center;
     }
     th {
       background-color: #f2f2f2;
     }
-    #loading-row {
-      text-align: center;
+    #loading-row td {
       font-style: italic;
     }
   </style>
@@ -41,55 +40,44 @@
   </table>
 
   <script>
-    // Utility to create a promise that resolves in random 1-3 seconds
     function createTimedPromise(index) {
-      const delay = Math.random() * 2 + 1; // Random delay between 1 and 3 seconds
-      return new Promise((resolve) => {
+      const delay = Math.random() * 2 + 1; // 1–3 seconds
+      return new Promise(resolve => {
         setTimeout(() => {
-          resolve(delay.toFixed(3)); // Resolve with the delay in fixed format
+          resolve({ index, delay: delay.toFixed(3) });
         }, delay * 1000);
       });
     }
 
-    // Record start time
     const startTime = performance.now();
 
-    // Create 3 promises
     const promises = [
       createTimedPromise(1),
       createTimedPromise(2),
       createTimedPromise(3)
     ];
 
-    // When all promises resolve
     Promise.all(promises).then(results => {
-      // Record end time
       const endTime = performance.now();
       const totalTime = ((endTime - startTime) / 1000).toFixed(3);
 
       const tbody = document.getElementById('output');
       tbody.innerHTML = ''; // Clear loading row
 
-      // Add each promise result to the table
-      results.forEach((time, index) => {
+      results.forEach((result, idx) => {
         const row = document.createElement('tr');
-        const promiseCell = document.createElement('td');
-        const timeCell = document.createElement('td');
-        promiseCell.textContent = `Promise ${index + 1}`;
-        timeCell.textContent = time;
-        row.appendChild(promiseCell);
-        row.appendChild(timeCell);
+        row.innerHTML = `
+          <td>Promise ${idx + 1}</td>
+          <td>${result.delay}</td>
+        `;
         tbody.appendChild(row);
       });
 
-      // Add total row
       const totalRow = document.createElement('tr');
-      const totalLabelCell = document.createElement('td');
-      const totalTimeCell = document.createElement('td');
-      totalLabelCell.textContent = 'Total';
-      totalTimeCell.textContent = totalTime;
-      totalRow.appendChild(totalLabelCell);
-      totalRow.appendChild(totalTimeCell);
+      totalRow.innerHTML = `
+        <td><strong>Total</strong></td>
+        <td>${totalTime}</td>
+      `;
       tbody.appendChild(totalRow);
     });
   </script>
